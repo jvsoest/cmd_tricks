@@ -1,4 +1,8 @@
 #################################################################################
+# KeyPress: a small script to mimick keystrokes when copy-paste is disabled.
+#   KeyPress can read text files, perform alt+tab on a keyboard, and starts
+#   typing the contents of the text file.
+#
 # How to use:
 #  python keypress.py <arguments> [file or string to type]
 #
