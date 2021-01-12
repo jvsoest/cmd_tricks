@@ -1,0 +1,1 @@
+python "%USERPROFILE%\Documents\Repositories\cmd_tricks\python\keypress.py" %*
