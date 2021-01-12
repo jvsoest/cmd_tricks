@@ -27,18 +27,28 @@ keyboard.release(Key.alt_l)
 # Wait one second to switch focus between windows
 time.sleep(1)
 
-def pressKey(myCharacter):
+def pressKey(myCharacter, previousKey):
     myKey = myCharacter
 
+    if myCharacter == "\n":
+        myKey = Key.enter
+    
+    if previousKey=="'":
+        keyboard.press(Key.space)
+        keyboard.release(Key.space)
+    
     keyboard.press(myKey)
     keyboard.release(myKey)
 
 def processString(characterString, keyPressInterval):
     print("Start keypress")
+    previousKey = None
+
     for myKey in list(characterString):
         if keyPressInterval is not None:
             time.sleep(keyPressInterval)
-        pressKey(myKey)
+        pressKey(myKey, previousKey)
+        previousKey = myKey
 
 # Set interval and input string
 keyPressInterval = None
@@ -55,4 +65,4 @@ if "-s" in sys.argv:
 else:
     with open(inputString, 'r') as f:
         fileContent = f.read()
-        processString(inputString, keyPressInterval)
+        processString(fileContent, keyPressInterval)
