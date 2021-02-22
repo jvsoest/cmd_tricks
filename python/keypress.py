@@ -33,7 +33,13 @@ def pressKey(myCharacter, previousKey):
     if myCharacter == "\n":
         myKey = Key.enter
     
-    if previousKey=="'":
+    if ((myCharacter.lower() in ["a", "e", "i", "o", "u"]) and (previousKey in ['"'])):
+        keyboard.press(Key.space)
+        keyboard.release(Key.space)
+    
+    if previousKey in ["'"]:
+        keyboard.press(Key.space)
+        keyboard.release(Key.space)
         keyboard.press(Key.space)
         keyboard.release(Key.space)
     
