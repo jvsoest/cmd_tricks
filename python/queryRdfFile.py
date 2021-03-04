@@ -37,8 +37,8 @@ if query is None:
     query = inputArgs.sparqlQuery
 
 # Execute the actual query
-g.query(query)
+qResult = g.query(query)
 
 # Loop over query results, and visualize them
-for stmt in g:
-    print(stmt)
+for row in qResult.bindings:
+    print(row)
