@@ -1,2 +1,3 @@
 pynput
 todoist-python
+rdflib
