@@ -23,9 +23,10 @@ mailboxNameString = "j.vansoest@maastrichtuniversity.nl" 'Enter your email addre
 
 Set objOutlook = Application
 Set objNameSpace = objOutlook.GetNamespace("MAPI")
-Set objSourceFolder = objNameSpace.GetDefaultFolder(olFolderInbox) ' From the inbox
+Set objSourceFolder = Application.ActiveExplorer.CurrentFolder
+'Set objSourceFolder = objNameSpace.GetDefaultFolder(olFolderInbox) ' From the inbox
 
-Set obDestFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive") ' To archive folder
+'Set obDestFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive") ' To archive folder
 
 ' Catch when multiple emails were selected
 If Application.ActiveExplorer.Selection.Count <> 1 Then
@@ -37,18 +38,19 @@ Set objMail = Application.ActiveExplorer.Selection.Item(1) ' Select the email
 'Set objMail = Application.ActiveExplorer.Selection.Item(1).Move(obDestFolder) ' Move the email
 objMail.UnRead = False ' Mark as read
 
-
 strHeader = GetInetHeaders(objMail)
+strHeader = Replace(strHeader, vbCrLf, "")
 
 Set regEx = CreateObject("VBScript.RegExp")
 With regEx
-  .Pattern = "(Message-ID:\s(.*))"
+  .Pattern = "(Message-ID:\s(.*?)>)"
   .Global = True
 End With
 
 If regEx.test(strHeader) Then
     Set M1 = regEx.Execute(strHeader)
     For Each M In M1
+        MsgBox (M)
         messageId = M
     Next
 End If

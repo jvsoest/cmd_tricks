@@ -23,6 +23,33 @@ Public Sub SearchMessageId()
         found = SearchMessageIdInFolder(objSourceFolder, msgId)
     End If
     
+    If Not found Then
+        mailboxNameString = "johan.vansoest@medicaldataworks.nl" 'Enter your email address here!
+        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Postvak IN")
+        found = SearchMessageIdInFolder(objSourceFolder, msgId)
+    End If
+    
+    If Not found Then
+        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive")
+        found = SearchMessageIdInFolder(objSourceFolder, msgId)
+    End If
+    
+    
+    If Not found Then
+        mailboxNameString = "General" 'Enter your email address here!
+        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Inbox")
+        found = SearchMessageIdInFolder(objSourceFolder, msgId)
+    End If
+    
+    If Not found Then
+        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive")
+        found = SearchMessageIdInFolder(objSourceFolder, msgId)
+    End If
+    
+    If Not found Then
+        MsgBox ("Could not find the requested email")
+    End If
+    
 End Sub
 
 Function SearchMessageIdInFolder(objSourceFolder As Outlook.Folder, msgId As String) As Boolean
@@ -33,15 +60,21 @@ Function SearchMessageIdInFolder(objSourceFolder As Outlook.Folder, msgId As Str
     Dim M1 As Object
     Dim M As Object
     
-    For Each Item In objSourceFolder.Items
+    Dim itemList As Outlook.Items
+    
+    Set itemList = objSourceFolder.Items
+    itemList.Sort ("ReceivedTime")
+    
+    For Each Item In itemList
         If TypeOf Item Is Outlook.MailItem Then
             Dim oMail As Outlook.MailItem: Set oMail = Item
             
             strHeader = GetInetHeaders(oMail)
+            strHeader = Replace(strHeader, vbCrLf, "")
 
             Set regEx = CreateObject("VBScript.RegExp")
             With regEx
-              .Pattern = "(Message-ID:\s(.*))"
+              .Pattern = "(Message-ID:\s(.*?)>)"
               .Global = True
             End With
             
