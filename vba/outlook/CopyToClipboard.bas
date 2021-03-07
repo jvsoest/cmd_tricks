@@ -50,7 +50,6 @@ End With
 If regEx.test(strHeader) Then
     Set M1 = regEx.Execute(strHeader)
     For Each M In M1
-        MsgBox (M)
         messageId = M
     Next
 End If
@@ -67,7 +66,7 @@ messageId = "message://" + messageId
 doClipboard.SetText (senderString + vbNewLine + dateString + vbNewLine + subjectString + vbNewLine + messageId)
 doClipboard.PutInClipboard ' Copy the objMail.EntryID and other info into your clipboard
 
-MsgBox ("Email metadata sent to clipboard")
+'MsgBox ("Email metadata sent to clipboard")
 
 End Sub
 
