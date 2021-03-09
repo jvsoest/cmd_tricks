@@ -1,0 +1,1 @@
+echo %1>%USERPROFILE%\track_time\category.txt"
