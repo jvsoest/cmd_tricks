@@ -1,0 +1,1 @@
+queryRdfFile "$HOME\track_time\$((Get-Date).tostring("yyyyMMdd")).ttl" hourCount
