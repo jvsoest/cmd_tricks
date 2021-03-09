@@ -9,7 +9,8 @@ In this example, we are looping (Foreach) over a folder (using Get-ChildItem). T
 ```
 Foreach ($folder in Get-ChildItem) {
     $objectName = $folder.name -replace '(.*)Session', ''
-    Compress-Archive -Path $folder.FullName -DestinationPath $objectName'.zip'
-    Remove-Item -Recurse $folder.FullName
+    Rename-Item $folder.name $objectName
+    'C:\Program Files\7-Zip\7z.exe' a -r $objectName'.zip' $objectName
+    Remove-Item -Recurse $objectName
 }
 ```
