@@ -66,6 +66,10 @@ messageId = "message://" + messageId
 doClipboard.SetText (senderString + vbNewLine + dateString + vbNewLine + subjectString + vbNewLine + messageId)
 doClipboard.PutInClipboard ' Copy the objMail.EntryID and other info into your clipboard
 
+Dim cmdString As String
+cmdString = "addTask.bat -ui -cb """ + Replace(objMail.Subject, """", "") + """"
+Shell (cmdString)
+
 'MsgBox ("Email metadata sent to clipboard")
 
 End Sub
