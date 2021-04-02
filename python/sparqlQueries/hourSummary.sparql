@@ -1,0 +1,8 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX tt: <http://jvsoest.eu/ontology/timeTrack.owl#>
+
+select (COUNT(*)/60 as ?hours) (COUNT(*) AS ?minutes)
+where {
+    ?s tt:at_time ?dateTime.
+}
