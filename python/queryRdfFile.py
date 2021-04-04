@@ -2,6 +2,7 @@ import argparse
 import rdflib
 import os
 import pandas as pd
+import glob
 
 # Parse arguments
 parser = argparse.ArgumentParser(description='Perform a SPARQL query on an RDF file')
@@ -13,7 +14,9 @@ inputArgs = parser.parse_args()
 g = rdflib.Graph()
 
 # Read TTL file
-result = g.parse(inputArgs.rdfFilePath, format=rdflib.util.guess_format(inputArgs.rdfFilePath))
+filesFound = glob.glob(inputArgs.rdfFilePath, recursive=True)
+for filePath in filesFound:
+    result = g.parse(filePath, format=rdflib.util.guess_format(filePath))
 
 # Determine whether to:
 #  a) read a sparql query file
