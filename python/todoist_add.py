@@ -6,6 +6,7 @@ from pathlib import Path
 import json
 import sys
 import tkinter as tk
+from tkinter import ttk
 
 # Parse input parameters
 parser = argparse.ArgumentParser(description='Add task to Todoist Inbox.')
@@ -53,11 +54,19 @@ class UserInterface:
         if taskNote != None:
             self.txtNotes.insert(tk.INSERT, taskNote)
 
+        self.projectTree = ttk.Treeview(root)
+        self.projectTree.pack(side=tk.TOP, anchor=tk.NE, pady=10, padx=10)
+        self.__addProjectTree__()
+        self.projectTree.selection_set(self.projectTree.get_children("")[0])
+
         btnSave = tk.Button(root, text="Save", command = self.saveActionButton)
         btnSave.pack(side=tk.TOP)
 
         # keybind control + enter to save action
         root.bind('<Control-Return>', self.saveActionShortcut)
+
+        # keybind control + enter to save action
+        root.bind('<Control-p>', self.setProjectFocus)
 
         # keybind escape to exit
         root.bind('<Escape>', self.quitAction)
@@ -65,6 +74,15 @@ class UserInterface:
 
         root.mainloop()
 
+    def __addProjectTree__(self, projectObj=None, superItem=""):
+        if projectObj is not None:
+            projects = self.todoistApi.getProjectForParent(projectObj['id'])
+        else:
+            projects = self.todoistApi.getProjectForParent(None)
+        for project in projects:
+            thisItem = self.projectTree.insert(superItem, "end", project['id'], text=project["name"])
+            self.__addProjectTree__(project, thisItem)
+    
     def saveActionButton(self):
         taskName = self.txtTaskName.get()
         taskNote = self.txtNotes.get("1.0",'end-1c')
@@ -74,6 +92,11 @@ class UserInterface:
         taskName = self.txtTaskName.get()
         taskNote = self.txtNotes.get("1.0",'end-1c')
         self.todoistApi.addItemToTodoist(taskName, taskNote)
+
+    def setProjectFocus(self, argument):
+        iid = self.projectTree.selection()[0]
+        self.projectTree.focus_set()
+        self.projectTree.focus(iid)
 
     def quitAction(self, argument):
         sys.exit(0)
@@ -97,6 +120,12 @@ class TodoistActions:
             self.api.quick.add(taskName)
         
         sys.exit(0)
+    def getProjectForParent(self, parentId):
+        returnSet = [ ]
+        for project in self.api.state['projects']:
+            if project['parent_id']==parentId:
+                returnSet.append(project)
+        return returnSet
 
 # determine to show UI or not...
 todoistApi = TodoistActions(api)
