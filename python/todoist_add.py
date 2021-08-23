@@ -50,17 +50,16 @@ class UserInterface:
         self.txtTaskName.insert(tk.INSERT, taskName)
 
         self.txtNotes = tk.Text(root, width=60, height=12)
-        self.txtNotes.pack(side=tk.TOP, anchor=tk.NW, pady=10, padx=10)
+        self.txtNotes.pack(side=tk.LEFT, anchor=tk.NW, pady=10, padx=10)
         if taskNote != None:
             self.txtNotes.insert(tk.INSERT, taskNote)
 
         self.projectTree = ttk.Treeview(root)
-        self.projectTree.pack(side=tk.TOP, anchor=tk.NE, pady=10, padx=10)
+        self.projectTree.pack(side=tk.RIGHT, anchor=tk.NE, pady=10, padx=10)
         self.__addProjectTree__()
-        self.projectTree.selection_set(self.projectTree.get_children("")[0])
 
         btnSave = tk.Button(root, text="Save", command = self.saveActionButton)
-        btnSave.pack(side=tk.TOP)
+        btnSave.pack(side=tk.BOTTOM)
 
         # keybind control + enter to save action
         root.bind('<Control-Return>', self.saveActionShortcut)
@@ -83,17 +82,25 @@ class UserInterface:
             thisItem = self.projectTree.insert(superItem, "end", project['id'], text=project["name"])
             self.__addProjectTree__(project, thisItem)
     
+    def __getSelection(self):
+        selections = self.projectTree.selection()
+        if len(selections) > 0:
+            return selections[0]
+        else:
+            return None
+
     def saveActionButton(self):
         taskName = self.txtTaskName.get()
         taskNote = self.txtNotes.get("1.0",'end-1c')
-        self.todoistApi.addItemToTodoist(taskName, taskNote)
+        self.todoistApi.addItemToTodoist(taskName, taskNote, self.__getSelection())
 
     def saveActionShortcut(self, argument):
         taskName = self.txtTaskName.get()
         taskNote = self.txtNotes.get("1.0",'end-1c')
-        self.todoistApi.addItemToTodoist(taskName, taskNote)
+        self.todoistApi.addItemToTodoist(taskName, taskNote, self.__getSelection())
 
     def setProjectFocus(self, argument):
+        self.projectTree.selection_set(self.projectTree.get_children("")[0])
         iid = self.projectTree.selection()[0]
         self.projectTree.focus_set()
         self.projectTree.focus(iid)
@@ -109,15 +116,21 @@ class TodoistActions:
     def __init__(self, api):
         super().__init__()
         self.api = api
-    def addItemToTodoist(self, taskName, taskNote):
+    def addItemToTodoist(self, taskName, taskNote, projectId):
         savePerformed = False
-        if taskNote is not None:
-            if taskNote != "":
-                self.api.quick.add(taskName, note=taskNote)
-                savePerformed = True
-
-        if not savePerformed:
-            self.api.quick.add(taskName)
+        itemId = self.api.quick.add(taskName)
+        
+        if itemId is not None:
+            item = self.api.items.get_by_id(itemId['id'])
+            
+            if taskNote is not None:
+                if taskNote != "":
+                    item.update(description=taskNote)
+            
+            if projectId is not None:
+                item.move(project_id=projectId)
+            
+            api.commit()
         
         sys.exit(0)
     def getProjectForParent(self, parentId):
