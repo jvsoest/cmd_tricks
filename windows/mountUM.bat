@@ -1,5 +1,6 @@
 @echo off
-echo "Use username as UNIMAAS\<username>!"
+echo Use username as UNIMAAS\^<username^>
+echo.
 net use I: \\mfs.maastrichtuniversity.nl\users\Employees\J.vanSoest\data
 net use J: \\mfs.maastrichtuniversity.nl\organisation
 net use K: \\mfs.maastrichtuniversity.nl\apps
