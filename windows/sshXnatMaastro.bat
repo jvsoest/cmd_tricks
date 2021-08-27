@@ -1,0 +1,1 @@
+ssh adminmaastro@172.18.2.12
