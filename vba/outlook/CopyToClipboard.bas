@@ -17,7 +17,6 @@ Dim messageId As String
 Dim regEx As Object
 Dim M1 As Object
 Dim M As Object
-Dim doClipboard As New DataObject
 
 mailboxNameString = "j.vansoest@maastrichtuniversity.nl" 'Enter your email address here!
 
@@ -63,14 +62,15 @@ messageId = Replace(messageId, "<", "%3C")
 messageId = Replace(messageId, ">", "%3E")
 messageId = "message://" + messageId
 
-doClipboard.SetText (senderString + vbNewLine + dateString + vbNewLine + subjectString + vbNewLine + messageId)
-doClipboard.PutInClipboard ' Copy the objMail.EntryID and other info into your clipboard
+With New HTMLDocument
+    SetClipBoardText = .parentWindow.ClipboardData.SetData("Text", senderString + vbNewLine + dateString + vbNewLine + subjectString + vbNewLine + messageId)
+End With
 
-Dim cmdString As String
-cmdString = "addTask.bat -ui -cb """ + Replace(objMail.Subject, """", "") + """"
-Shell (cmdString)
+'Dim cmdString As String
+'cmdString = "addTask.bat -ui -cb """ + Replace(objMail.Subject, """", "") + """"
+'Shell (cmdString)
 
-'MsgBox ("Email metadata sent to clipboard")
+MsgBox ("Email metadata sent to clipboard")
 
 End Sub
 
