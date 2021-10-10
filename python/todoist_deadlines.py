@@ -57,6 +57,7 @@ for task in tdHelper.getDeadlineTasks():
         event.add('dtstart', date.fromisoformat(task['due']['date']))
     event.add('description', task['url'])
     event.add('location', task['url'])
+    event.add('uid', 'todoist' + str(task['id']))
     cal.add_component(event)
 
 f = open(config["todoist"]["deadlines_storage_path"], 'wb')
