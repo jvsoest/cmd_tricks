@@ -14,36 +14,12 @@ Public Sub SearchMessageId()
     Set objNameSpace = objOutlook.GetNamespace("MAPI")
     
     
-    mailboxNameString = "j.vansoest@maastrichtuniversity.nl" 'Enter your email address here!
-    Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Postvak IN")
-    found = SearchMessageIdInFolder(objSourceFolder, msgId)
+    Set objSourceFolder = objNameSpace.Folders("j.vansoest@maastrichtuniversity.nl")
+    found = MyFolderSearch(objSourceFolder, msgId)
     
     If Not found Then
-        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive")
-        found = SearchMessageIdInFolder(objSourceFolder, msgId)
-    End If
-    
-    If Not found Then
-        mailboxNameString = "johan.vansoest@medicaldataworks.nl" 'Enter your email address here!
-        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Postvak IN")
-        found = SearchMessageIdInFolder(objSourceFolder, msgId)
-    End If
-    
-    If Not found Then
-        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive")
-        found = SearchMessageIdInFolder(objSourceFolder, msgId)
-    End If
-    
-    
-    If Not found Then
-        mailboxNameString = "General" 'Enter your email address here!
-        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Inbox")
-        found = SearchMessageIdInFolder(objSourceFolder, msgId)
-    End If
-    
-    If Not found Then
-        Set objSourceFolder = objNameSpace.Folders(mailboxNameString).Folders("Archive")
-        found = SearchMessageIdInFolder(objSourceFolder, msgId)
+        Set objSourceFolder = objNameSpace.Folders("johan.vansoest@medicaldataworks.nl")
+        found = MyFolderSearch(objSourceFolder, msgId)
     End If
     
     If Not found Then
@@ -51,6 +27,30 @@ Public Sub SearchMessageId()
     End If
     
 End Sub
+
+Function MyFolderSearch(folderToSearch As Outlook.Folder, msgId As String) As Boolean
+
+    Dim subFolder As Outlook.Folder
+    Dim found As Boolean
+    
+    'check for result in given folder
+    found = SearchMessageIdInFolder(folderToSearch, msgId)
+    If found Then
+        MyFolderSearch = found
+        Exit Function
+    End If
+    
+    For Each subFolder In folderToSearch.Folders
+        Debug.Print ("Folder name: " + subFolder.FolderPath)
+        found = MyFolderSearch(subFolder, msgId)
+        
+        If found Then
+            Exit For
+        End If
+    Next
+    
+    MyFolderSearch = found
+End Function
 
 Function SearchMessageIdInFolder(objSourceFolder As Outlook.Folder, msgId As String) As Boolean
     SearchMessageIdInFolder = False
@@ -63,6 +63,9 @@ Function SearchMessageIdInFolder(objSourceFolder As Outlook.Folder, msgId As Str
     Dim itemList As Outlook.Items
     
     Set itemList = objSourceFolder.Items
+
+    'Ignore if sorting is not possible
+    On Error Resume Next
     itemList.Sort ("ReceivedTime")
     
     For Each Item In itemList
