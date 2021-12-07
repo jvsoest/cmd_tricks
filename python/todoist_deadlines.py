@@ -43,7 +43,6 @@ def findDeadlineInString(stringToSearch):
 from icalendar import Calendar, Event
 cal = Calendar()
 for task in tdHelper.getDeadlineTasks():
-    
     deadlineString = None
     deadlineString = findDeadlineInString(task["content"])
     if deadlineString is None:
@@ -51,10 +50,25 @@ for task in tdHelper.getDeadlineTasks():
 
     event = Event()
     event.add('summary', task['content'])
+
+    textDate = None
     if deadlineString is not None:
-        event.add('dtstart', date.fromisoformat(deadlineString))
+        textDate = date.fromisoformat(deadlineString)
+    
+    taskDate = None
+    if "due" in task:
+        taskDate = date.fromisoformat(task['due']['date'])
+    
+    if (textDate is not None) & (taskDate is not None):
+        event.add('dtstart', taskDate)
+        event.add('dtend', textDate)
     else:
-        event.add('dtstart', date.fromisoformat(task['due']['date']))
+        if textDate is not None:
+            event.add('dtstart', textDate)
+        
+        if taskDate is not None:
+            event.add('dtstart', taskDate)
+
     event.add('description', task['url'])
     event.add('location', task['url'])
     event.add('uid', 'todoist' + str(task['id']))
