@@ -11,6 +11,7 @@ start_time = time.time()
 parser = argparse.ArgumentParser(description='Perform a SPARQL query on an RDF file')
 parser.add_argument('rdfFilePath', help='Path to the RDF file')
 parser.add_argument('sparqlQuery', help='Path to the SPARQL query file, Query template, or the actual query string')
+parser.add_argument('-t', '--time-query', help='Print query execution time needed', default=False, action='store_true')
 inputArgs = parser.parse_args()
 
 # Create graph
@@ -56,4 +57,5 @@ with pd.option_context('display.max_rows', None,
         'display.max_colwidth', None):
     print(df.to_string(index=False))
 
-print("--- %s seconds ---" % (time.time() - start_time))
+if inputArgs.time_query:
+    print("--- %s seconds ---" % (time.time() - start_time))
