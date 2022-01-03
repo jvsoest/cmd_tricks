@@ -1,1 +1,1 @@
-code -n C:\Users\johan\OneDrive\Grip\
+powershell -windowstyle hidden code -n C:\Users\johan\OneDrive\Grip\
