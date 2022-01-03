@@ -1,1 +1,1 @@
-python "%USERPROFILE%\Documents\Repositories\cmd_tricks\python\queryRdfFile.py" %*
+python "%USERPROFILE%\Repositories\cmd_tricks\python\queryRdfFile.py" %*
