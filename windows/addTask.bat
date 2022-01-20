@@ -1,1 +1,1 @@
-python "%USERPROFILE%\Documents\Repositories\cmd_tricks\python\todoist_add.py" %*
+python "%USERPROFILE%\Repositories\cmd_tricks\python\todoist_add.py" %*
