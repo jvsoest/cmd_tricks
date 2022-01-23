@@ -28,6 +28,11 @@ if config is None:
 # Read Todoist API key form .cmd_tricks.json
 api = TodoistAPI(config["todoist"]["api_key"])
 
+try:
+    api.sync()
+except:
+    print("Could not sync, working offline")
+
 # get contents from clipboard
 cbContents = None
 if inputArgs.clipboard:
@@ -42,36 +47,47 @@ class UserInterface:
         # super().__init__()
         self.todoistApi = todoistApi
 
-        root = tk.Tk()
-        root.title("Todoist quick entry")
+        self.root = tk.Tk()
+        self.root.title("Todoist quick entry")
 
-        self.txtTaskName = tk.Entry(root, width=80)
+        self.txtTaskName = tk.Entry(self.root, width=80)
         self.txtTaskName.pack(side=tk.TOP, anchor=tk.NW, pady=10, padx=10)
         self.txtTaskName.insert(tk.INSERT, taskName)
 
-        self.txtNotes = tk.Text(root, width=60, height=12)
+        self.txtNotes = tk.Text(self.root, width=60, height=12)
         self.txtNotes.pack(side=tk.LEFT, anchor=tk.NW, pady=10, padx=10)
         if taskNote != None:
             self.txtNotes.insert(tk.INSERT, taskNote)
+        
+        btnSave = tk.Button(self.root, text="Save", command = self.saveActionButton)
+        btnSave.pack(side=tk.LEFT, anchor=tk.SW)
 
-        self.projectTree = ttk.Treeview(root)
-        self.projectTree.pack(side=tk.RIGHT, anchor=tk.NE, pady=10, padx=10)
+        self.projectTree = ttk.Treeview(self.root)
+        self.projectTree.pack(side=tk.RIGHT, anchor=tk.NE, padx=10, expand=True)
         self.__addProjectTree__()
 
-        btnSave = tk.Button(root, text="Save", command = self.saveActionButton)
-        btnSave.pack(side=tk.BOTTOM)
+        self.tagList = ttk.Treeview(self.root)
+        self.tagList.pack(side=tk.RIGHT, anchor=tk.NE, padx=10, expand=True)
+        self.__addLabels__()
 
         # keybind control + enter to save action
-        root.bind('<Control-Return>', self.saveActionShortcut)
+        self.root.bind('<Control-Return>', self.saveActionShortcut)
 
         # keybind control + enter to save action
-        root.bind('<Control-p>', self.setProjectFocus)
+        self.root.bind('<Control-p>', self.setProjectFocus)
 
         # keybind escape to exit
-        root.bind('<Escape>', self.quitAction)
+        self.root.bind('<Escape>', self.quitAction)
         self.txtTaskName.focus_set()
 
-        root.mainloop()
+        self.root.mainloop()
+
+    def __addLabels__(self):
+        labels = self.todoistApi.getLabels()
+        self.label_checkboxes = { }
+        #TODO: group the list on category
+        for label in labels:
+            thisItem = self.tagList.insert("", "end", label["id"], text=label['name'])
 
     def __addProjectTree__(self, projectObj=None, superItem=""):
         if projectObj is not None:
@@ -117,20 +133,12 @@ class TodoistActions:
         super().__init__()
         self.api = api
     def addItemToTodoist(self, taskName, taskNote, projectId):
-        savePerformed = False
-        itemId = self.api.quick.add(taskName)
-        
-        if itemId is not None:
-            item = self.api.items.get_by_id(itemId['id'])
-            
-            if taskNote is not None:
-                if taskNote != "":
-                    item.update(description=taskNote)
-            
-            if projectId is not None:
-                item.move(project_id=projectId)
-            
+        self.api.items.add(taskName, project_id=projectId, description=taskNote, auto_parse_labels=True)
+        try:
             api.commit()
+        except:
+            print("Could not commit task")
+            #TODO: save to local file
         
         sys.exit(0)
     def getProjectForParent(self, parentId):
@@ -139,6 +147,8 @@ class TodoistActions:
             if project['parent_id']==parentId:
                 returnSet.append(project)
         return returnSet
+    def getLabels(self):
+        return self.api.state['labels']
 
 # determine to show UI or not...
 todoistApi = TodoistActions(api)
