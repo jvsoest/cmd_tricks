@@ -86,8 +86,18 @@ class UserInterface:
         labels = self.todoistApi.getLabels()
         self.label_checkboxes = { }
         #TODO: group the list on category
-        for label in labels:
-            thisItem = self.tagList.insert("", "end", label["id"], text=label['name'])
+        # for label in labels:
+            # thisItem = self.tagList.insert("", "end", label["id"], text=label['name'])
+        treeItem = self.todoistApi.labelTree
+        self.__addLabelRecursive__(self.tagList, "", treeItem)
+    
+    def __addLabelRecursive__(self, tagListObj, superItem, treeItem):
+        for label in treeItem["labelList"]:
+            thisItem = tagListObj.insert(superItem, "end", label["id"], text=label['nameSplit'])
+        for subTreeName in treeItem["subTree"]:
+            if len(subTreeName)>0:
+                obj = tagListObj.insert(superItem, "end", subTreeName, text=subTreeName)
+                self.__addLabelRecursive__(tagListObj, subTreeName, treeItem["subTree"][subTreeName])
 
     def __addProjectTree__(self, projectObj=None, superItem=""):
         if projectObj is not None:
@@ -132,6 +142,8 @@ class TodoistActions:
     def __init__(self, api):
         super().__init__()
         self.api = api
+        self.labelTree = {}
+        self.processTagsList()
     def addItemToTodoist(self, taskName, taskNote, projectId):
         self.api.items.add(taskName, project_id=projectId, description=taskNote, auto_parse_labels=True)
         try:
@@ -141,6 +153,30 @@ class TodoistActions:
             #TODO: save to local file
         
         sys.exit(0)
+    
+    def __getOrCreateSubTree(self, structureList, currentTree):
+        if len(structureList) > 1:
+            if structureList[0] not in currentTree['subTree']:
+                currentTree['subTree'][structureList[0]] = {
+                    "labelList": [],
+                    "subTree": {}
+                }
+            return self.__getOrCreateSubTree(structureList[1:], currentTree['subTree'][structureList[0]])
+        else:
+            return currentTree
+
+    def processTagsList(self):
+        self.labelTree = {
+            "labelList": [],
+            "subTree": {}
+        }
+
+        for label in self.api.state['labels']:
+            subStructure = label['name'].split(":")
+            curTree = self.__getOrCreateSubTree(subStructure, self.labelTree)
+            label['nameSplit'] = subStructure[-1]
+            curTree["labelList"].append(label)
+        
     def getProjectForParent(self, parentId):
         returnSet = [ ]
         for project in self.api.state['projects']:
