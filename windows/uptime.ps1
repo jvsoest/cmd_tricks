@@ -1,4 +1,8 @@
 $bootuptime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
 $CurrentDate = Get-Date
 $uptime = $CurrentDate - $bootuptime
-echo "up $($uptime.Days) days, $($uptime.Hours):$($uptime.Minutes)"
+$minutes = $uptime.Minutes
+if ($minutes -lt 10) {
+    $minutes = "0$($minutes)"
+}
+echo "up $($uptime.Days) days, $($uptime.Hours):$($minutes)"
