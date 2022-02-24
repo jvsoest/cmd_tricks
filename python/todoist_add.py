@@ -83,11 +83,6 @@ class UserInterface:
         self.root.mainloop()
 
     def __addLabels__(self):
-        labels = self.todoistApi.getLabels()
-        self.label_checkboxes = { }
-        #TODO: group the list on category
-        # for label in labels:
-            # thisItem = self.tagList.insert("", "end", label["id"], text=label['name'])
         treeItem = self.todoistApi.labelTree
         self.__addLabelRecursive__(self.tagList, "", treeItem)
     
@@ -118,6 +113,7 @@ class UserInterface:
     def saveActionButton(self):
         taskName = self.txtTaskName.get()
         taskNote = self.txtNotes.get("1.0",'end-1c')
+        print(len(self.tagList.selection()))
         self.todoistApi.addItemToTodoist(taskName, taskNote, self.__getSelection())
 
     def saveActionShortcut(self, argument):
