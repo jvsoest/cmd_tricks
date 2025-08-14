@@ -15,6 +15,9 @@ Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\office\16.0\word\secur
 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Appx" -Name AllowDeploymentInSpecialProfiles 1 -Force
 
+# Show toggle for new outlook
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General" -Name HideNewOutlookToggle -Value 0 -Force
+
 # Remove group policy that forces the old windows context menu
 reg.exe delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f
 
