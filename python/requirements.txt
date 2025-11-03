@@ -3,3 +3,4 @@ todoist-python
 rdflib
 pandas
 clipboard
+qrcode[pil]
